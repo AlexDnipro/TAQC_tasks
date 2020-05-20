@@ -1,4 +1,9 @@
 import sys
+'''
+This module accepts the given sum and sequence of numbers from command separated by
+space and outputs the corresponding pairs into console
+'''
+
 def pairs(sum, *args):
     for i in range(len(args)):
         for j in range(i+1,len(args)):
@@ -6,8 +11,9 @@ def pairs(sum, *args):
                 print(f'{args[i]} + {args[j]}')
 
 # main block
-def main():
-    pairs(*sys.argv[1:])
-    
 if __name__ == '__main__':
-    main()
+    if (sys.argv[1:]):
+        pairs(*sys.argv[1:])
+    else:
+        arguments = (input("Please enter sum and sequence of numbers separated by space:")).split(" ")
+        pairs(*arguments)
