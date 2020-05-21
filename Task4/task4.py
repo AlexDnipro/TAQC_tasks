@@ -89,8 +89,6 @@ def main():
     task_class_objects = Project.create_task_instances(collected_project_data)
     project = Project(task_class_objects)
     project.confidence_interval_info(project.confidence_interval_95())
-    task5 = Task((1,2,3))
-    print(task5.task_estimate)
 
 
 if (__name__=='__main__'):
