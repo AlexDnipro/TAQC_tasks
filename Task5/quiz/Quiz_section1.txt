@@ -1,0 +1,3 @@
+What is your year of birth?
+Do you have car?
+Would you like to buy a new car?
