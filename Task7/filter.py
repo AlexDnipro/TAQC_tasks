@@ -75,7 +75,7 @@ class Rules(Enum):
 class Option(ABC):
     @abstractmethod
     def filter_file(self, file_lines: tuple):
-        """Parent method, which is processing file content and returns tuple, containing information
+        """Parent method, which is processing file content and returns dictionary, containing information
         which is further used in 'filter' and 'annotate' classes inherited from Option class."""
         file_rules = {}
         count = 0
