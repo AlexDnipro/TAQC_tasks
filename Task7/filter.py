@@ -68,28 +68,35 @@ class Rules(Enum):
     FN203 = FN203()
     
     @classmethod
-    def rules_generator(cls):
+    def generator(cls):
+        """"Generator which yields rules out of Rules class"""
         for item in cls:
             yield item.value
 
 class Option(ABC):
     @abstractmethod
-    def filter_file(self, file_lines: tuple):
-        """Parent method, which is processing file content and returns dictionary, containing information
-        which is further used in 'filter' and 'annotate' classes inherited from Option class."""
-        file_rules = {}
-        count = 0
-        for line in file_lines:
-            count += 1
-            str = ' '.join([rule.name() for rule in Rules.rules_generator() if rule.matches(line)])
-            file_rules[f'{count}'] = str
-        return file_rules
+    def filter_file(self, lines: list):
+        """This method will contain 'filter' or 'annotate' logic in inherited classes"""
+        pass
     
+    def _search_rules(self, lines: list):
+        """
+        Method receives list with file strings and returns dictionary, containing information:
+        which rules are applicable for each line
+        """
+        relevant_rules = {}
+        count = 0
+        for line in lines:
+            count += 1
+            str = ' '.join([rule.name() for rule in Rules.generator() if rule.matches(line)])
+            relevant_rules[f'{count}'] = str
+        return relevant_rules
+
     @staticmethod
     def get_option(option: str):
         """
         Method receives argument from command line: 'filter' or 'annotate' and creates the instance
-        of corresponding Class which will contains method with requested logic.
+        of corresponding Class which further contains method with relevant logic.
         """
         if option == 'filter':
             return FilterOption()
@@ -98,34 +105,35 @@ class Option(ABC):
         raise Exception('Wrong arguments!')
         
 class FilterOption(Option):
-    def filter_file(self, file_lines: tuple):
+    def filter_file(self, lines: list):
         """
-        Method calls for parent method which is processing text file content and contains additional
-        logic specific for 'filter' scenario: the program should display lines in console based on given
-        rules.
+        Method is realizing 'filter' scenario: display file lines in console based on given rules.
+        Call for _search_rules method, with the list of file strings passed as argument, will generate 
+        the dictionary of applicable rules and assign it to relevant_rules variable
         """
-        file_rules = super().filter_file(file_lines)
-        for key in file_rules.keys():
-            if 'FP' in file_rules[key]:
-                print(f'{key}:{file_lines[int(key) - 1]}')
+        relevant_rules = self._search_rules(lines)
+        for key in relevant_rules.keys():
+            if relevant_rules[key].count('FP') >= relevant_rules[key].count('FN'):
+                print(f'{key}:{lines[int(key) - 1]}')
 
 class AnnotateOption(Option):
-    def filter_file(self, file_lines: tuple):
+    def filter_file(self, lines: list):
         """
-        Method calls for parent method which is processing text file content and contains additional logic 
-        specific for 'annotate' scenario: the program has to display the information about which rules are
-        applicable for each line.
+        Method is realizing 'annotate' scenario: the program has to display the information about 
+        which rules are applicable for each line.
+        Call for _search_rules method, with the list of file strings passed as argument, will generate 
+        the dictionary of applicable rules and assign it to relevant_rules variable
         """
-        file_rules = super().filter_file(file_lines)
-        for key in file_rules.keys():
-            print(f'{key}: {file_rules[key]}')
+        relevant_rules = self._search_rules(lines)
+        for key in relevant_rules.keys():
+            print(f'{key}: {relevant_rules[key]}')
 
 
 if __name__ == '__main__':
     option = Option.get_option(sys.argv[1])
     file_path = sys.argv[2]
     content = open(file_path, 'r')
-    file_lines = content.readlines()
+    lines = content.readlines()
     content.close()
-    option.filter_file(file_lines)
+    option.filter_file(lines)
                 
